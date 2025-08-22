@@ -1,0 +1,28 @@
+# 核心依赖
+aiohttp==3.9.1
+asyncio
+sqlite3
+re
+json
+hashlib
+datetime
+urllib.parse
+pathlib
+dataclasses
+typing
+feedparser==6.0.10
+requests_html==0.10.0
+
+# 配置管理
+pyyaml==6.0.1
+python-dotenv==1.0.0
+
+# 日志和监控
+loguru==0.7.2
+
+# 可选依赖（用于高级功能）
+# schedule==1.2.0
+# apscheduler==3.10.4
+# jinja2==3.1.2
+# markdown==3.5.1
+# weasyprint==60.1

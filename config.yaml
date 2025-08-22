@@ -1,0 +1,199 @@
+# 技术动态月报生成器 - 统一配置文件
+
+# 系统配置
+system:
+  name: "技术动态月报生成器"
+  version: "2.0"
+
+# 数据库
+database:
+  path: "data/tech_articles.db"
+
+# 日志
+logging:
+  level: "INFO"
+  file: "logs/tech_crawler.log"
+
+# 抓取配置
+crawler:
+  max_articles_per_site: 20
+  request_delay: 1
+  timeout: 30
+  jina_api: "https://r.jina.ai/"
+  user_agent: "Mozilla/5.0 (compatible; TechCrawler/2.0)"
+
+# AI配置
+ai:
+  # 默认使用的AI提供商
+  provider: "deepseek"
+  model: "deepseek-chat"
+  # provider: "zhipu"
+  # model: "glm-4.5"
+  max_tokens: 8000
+  temperature: 0.7
+  
+  # API配置 (直接配置，方便独立运行)
+  api_keys:
+    deepseek: "sk-aa78473c067e4d80adcff95478d7bde3"
+    zhipu: "288f7def28c1443abc91bd637beeef86.1c6u7RL8o3DG175X"
+  
+  # API基础URL
+  api_urls:
+    deepseek: "https://api.deepseek.com/v1"
+    zhipu: "https://open.bigmodel.cn/api/paas/v4"
+  
+  # 可用模型配置
+  models:
+    deepseek-chat:
+      provider: "deepseek"
+      name: "deepseek-chat"
+      max_tokens: 8000
+      description: "DeepSeek聊天模型"
+    glm-4.5:
+      provider: "zhipu"
+      name: "glm-4.5"
+      max_tokens: 8000
+      description: "智谱AI GLM-4.5模型"
+
+# 数据源配置（完整版本）
+sources:
+  kubernetes_blog:
+    name: "Kubernetes Blog"
+    base_url: "https://kubernetes.io/blog/"
+    enabled: true
+    type: "direct"
+    max_articles: 15
+    selectors:
+      article_links: "a[href*='/blog/']"
+      title: "h1"
+      date: "time"
+      content: "article"
+  
+  kubernetes_enhancements:
+    name: "Kubernetes Enhancements"
+    base_url: "https://github.com/kubernetes/enhancements"
+    api_url: "https://api.github.com/repos/kubernetes/enhancements/issues"
+    enabled: true
+    type: "github"
+    max_articles: 20
+  
+  cncf:
+    name: "CNCF官网"
+    base_url: "https://www.cncf.io/blog/"
+    rss_feed: "https://www.cncf.io/feed/"
+    enabled: true
+    type: "rss"
+    max_articles: 20
+    selectors:
+      article_links: "h3.entry-title a"
+      title: "h1"
+      date: "time.entry-date"
+      content: ".entry-content"
+  
+  aliyun_developer:
+    name: "阿里云开发者社区"
+    base_url: "https://developer.aliyun.com/group/cloud/article/"
+    enabled: true
+    type: "direct"
+    max_articles: 15
+    dynamic_loading: true
+    selectors:
+      article_links: ".content a.article-title"
+      title: "h1"
+      date: ".article-info span"
+      content: ".article-content"
+  
+  huawei_cloud:
+    name: "华为云技术博客"
+    base_url: "https://bbs.huaweicloud.com/blogs"
+    enabled: true
+    type: "direct"
+    max_articles: 10
+    dynamic_loading: true
+    selectors:
+      article_links: ".article-title a"
+      title: "h1"
+      date: ".article-info"
+      content: ".article-content"
+  
+  lfedge:
+    name: "LF Edge"
+    base_url: "https://lfedge.org/news/blog/"
+    enabled: true
+    type: "direct"
+    max_articles: 10
+    selectors:
+      article_links: "h2.entry-title a"
+      title: "h1"
+      date: "time.entry-date"
+      content: ".entry-content"
+
+# 报告配置
+report:
+  output_dir: "reports"
+  # 报告时间段配置
+  # 如果不配置，默认使用当前月份（从1号到今天）
+  # 如果配置了 specific_month，则生成该月份的完整报告
+  # specific_month 格式: "2025-07" 或 "2025-08"
+  # specific_month: "2025-07"
+  categories:
+    "Kubernetes 生态":
+      icon: "☸️"
+      sources: ["Kubernetes Blog", "Kubernetes Enhancements"]
+      description: "Kubernetes 核心项目动态与博客文章"
+    "云原生基金会 CNCF":
+      icon: "🌐"
+      sources: ["CNCF官网"]
+      description: "CNCF 项目与云原生生态最新动态"
+    "边缘计算 LF Edge":
+      icon: "🔗"
+      sources: ["LF Edge"]
+      description: "Linux 基金会边缘计算项目进展"
+    "国内云厂商":
+      icon: "☁️"
+      sources: ["阿里云开发者社区", "华为云技术博客"]
+      description: "国内云厂商技术动态与实践分享"
+
+# AI提示词模板
+prompts:
+  summary: |
+    你是一个专业的云原生技术分析师，专注于追踪和分析云原生、开源项目及开发者生态的最新技术动态和创新趋势。请深度分析以下网站内容，提供结构化的总结。
+    
+    分析以下网站内容并严格按照格式输出，确保每个要点都是完整、明确的句子：
+
+    ## 核心内容
+    <用2-3个完整句子精确总结网站的主要技术内容、产品特性或项目更新，每个要点都要表达完整，不要出现断句或未完成的内容。突出关键信息和最新动态，确保涵盖技术核心和主要功能>
+
+    ## 🚀 创新亮点
+    <用2-3个完整句子详细识别并分析任何创新性技术、突破性功能或首创性内容，特别关注那些与众不同、新奇有趣的技术点。每个句子都要完整表达创新点、技术突破点和独特价值，包括与现有技术的区别和改进。避免使用破折号连接不完整的想法>
+
+    ## 💡 技术价值
+    <用3-4个完整句子深入分析这个技术/项目/更新解决了什么具体问题（如性能瓶颈、开发效率低、运维复杂等），为用户或开发者带来什么实际价值和好处。每个要点都要完整表达：
+    1. 解决的具体问题（痛点）
+    2. 带来的实际好处（价值体现）
+    3. 可量化的改进或场景化的价值描述
+    避免使用破折号或项目符号，确保每个要点都是完整的句子>
+
+    ## 🎯 应用场景
+    <用2-3个完整句子清晰说明该技术适用的具体场景、目标用户群体和典型使用案例。每个场景描述都要完整，包含实际应用示例，帮助理解其实用价值和落地效果。确保句子结构完整，避免断句>
+
+    ## 🏷️ 关键词
+    <提取3-5个最相关的核心技术标签，用逗号分隔，如：Kubernetes, Serverless, AI, 安全, 性能优化等，准确反映内容本质和技术领域>
+
+    ## 📈 行业影响
+    <用2-3个完整句子分析该技术对云原生行业、开发者社区或企业用户的潜在影响，可能带来的变革或机会，包括技术演进方向、市场格局变化、开发模式转变等。确保每个影响描述都是完整的句子>
+
+    严格要求：
+    - 所有内容必须使用完整、明确的中文句子表达，避免断句、未完成的句子或破折号连接的不完整想法
+    - 每个要点都要有明确的主语、谓语和宾语，确保语义完整
+    - 避免使用"-"符号连接句子，每个要点都要独立成句
+    - 优先识别和突出任何创新性、突破性或独特的技术内容，特别是那些新奇有趣的方面，需要具体指出创新点在哪里，为什么有趣，与现有方案相比有何不同
+    - 重点分析技术的实际价值和意义，不只是功能描述，要深入解释其解决的问题和带来的好处，提供完整的量化或场景化价值描述
+    - 如果是版本更新，要明确说明改进的具体意义和实际好处，确保表达完整
+    - 使用专业但通俗易懂的语言，避免过多术语堆砌，确保非专业人士也能理解技术价值
+    - 保持内容简洁但信息丰富，观点明确有洞察力，每个部分都要有实质性内容，避免泛泛而谈
+    - 确保所有句子都有明确的结束，不要出现"..."或未完成的表达
+    - 必须使用中文，确保表达准确、专业且流畅
+
+    网站内容：
+    %s

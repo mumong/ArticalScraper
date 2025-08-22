@@ -34,8 +34,8 @@ ai:
   
   # API配置 (直接配置，方便独立运行)
   api_keys:
-    deepseek: "sk-aa78473c067e4d80adcff95478d7bde3"
-    zhipu: "288f7def28c1443abc91bd637beeef86.1c6u7RL8o3DG175X"
+    deepseek: "<token>"
+    zhipu: "<token>"
   
   # API基础URL
   api_urls:
